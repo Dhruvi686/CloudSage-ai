@@ -1,0 +1,9 @@
+db_id,instance_class,engine,cpu_avg,memory_avg,connections_avg,monthly_cost
+prod-db,db.r5.xlarge,postgres,18,32,120,540.00
+prod-replica,db.r5.large,postgres,12,28,80,270.00
+staging-db,db.t3.large,postgres,8,20,30,135.00
+analytics-db,db.r5.2xlarge,postgres,65,75,620,1080.00
+dev-db,db.t3.medium,mysql,5,15,10,67.50
+reporting-db,db.r5.large,postgres,15,38,95,270.00
+cache-db,db.r6g.large,redis,35,55,250,243.00
+logs-db,db.t3.large,mysql,10,25,45,135.00

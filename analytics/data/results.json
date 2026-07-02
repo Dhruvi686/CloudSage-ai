@@ -1,0 +1,633 @@
+{
+  "metadata": {
+    "generated_at": "2026-07-02T18:47:06.949785+00:00",
+    "version": "1.0.0",
+    "pipeline": "CloudSight AI Analytics Engine",
+    "resources_analyzed": {
+      "ec2": 15,
+      "s3": 10,
+      "ebs": 10,
+      "rds": 8
+    },
+    "total_resources": 43,
+    "total_recommendations": 26,
+    "processing_time_seconds": 25.67
+  },
+  "dashboard": {
+    "monthlySpend": 11387.2,
+    "potentialSavings": 3073.62,
+    "savingsPercentage": 26.99,
+    "finOpsScore": 35,
+    "forecastedSpend": 22016.09
+  },
+  "recommendations": [
+    {
+      "id": "S3-GL-006",
+      "resourceId": "data-lake-raw",
+      "resourceType": "S3",
+      "title": "Migrate data-lake-raw to Glacier",
+      "reason": "Bucket has not been accessed for 90 days and is currently in STANDARD storage class. Data qualifies for Glacier archival storage.",
+      "risk": "LOW",
+      "confidence": 0.97,
+      "monthlySavings": 826.2,
+      "annualSavings": 9914.4,
+      "implementationSteps": [
+        "Create S3 Lifecycle policy for Glacier transition.",
+        "Validate compliance requirements.",
+        "Transition archived data."
+      ],
+      "executiveExplanation": "Data stored in data-lake-raw (15.0 TB) has remained inactive for more than ninety days and should be transitioned to lower-cost Glacier archival storage, saving $9,914.40/year. Estimated carbon reduction: 360.0 kg CO₂/year.",
+      "category": "STRATEGIC",
+      "ruleId": "S3-002"
+    },
+    {
+      "id": "S3-DA-003",
+      "resourceId": "backup-archive",
+      "resourceType": "S3",
+      "title": "Move backup-archive to Deep Archive",
+      "reason": "Bucket has not been accessed for 400 days (13 months). Data is extremely cold and suitable for Deep Archive storage.",
+      "risk": "LOW",
+      "confidence": 0.99,
+      "monthlySavings": 777.6,
+      "annualSavings": 9331.2,
+      "implementationSteps": [
+        "Review data retention and compliance requirements.",
+        "Create S3 Lifecycle policy for Deep Archive transition.",
+        "Validate retrieval time expectations (12+ hours).",
+        "Apply lifecycle rule to bucket.",
+        "Monitor transition progress in S3 console."
+      ],
+      "executiveExplanation": "Data in backup-archive (12.0 TB) has been inactive for 400 days and should be transitioned to Deep Archive storage, achieving 70–90% cost reduction ($9,331.20/year). This also reduces estimated carbon footprint by 432.0 kg CO₂/year.",
+      "category": "STRATEGIC",
+      "ruleId": "S3-003"
+    },
+    {
+      "id": "S3-GL-001",
+      "resourceId": "analytics-data",
+      "resourceType": "S3",
+      "title": "Migrate analytics-data to Glacier",
+      "reason": "Bucket has not been accessed for 120 days and is currently in STANDARD storage class. Data qualifies for Glacier archival storage.",
+      "risk": "LOW",
+      "confidence": 0.97,
+      "monthlySavings": 285.6,
+      "annualSavings": 3427.2,
+      "implementationSteps": [
+        "Create S3 Lifecycle policy for Glacier transition.",
+        "Validate compliance requirements.",
+        "Transition archived data."
+      ],
+      "executiveExplanation": "Data stored in analytics-data (5.2 TB) has remained inactive for more than ninety days and should be transitioned to lower-cost Glacier archival storage, saving $3,427.20/year. Estimated carbon reduction: 124.8 kg CO₂/year.",
+      "category": "STRATEGIC",
+      "ruleId": "S3-002"
+    },
+    {
+      "id": "S3-DA-007",
+      "resourceId": "cold-reports",
+      "resourceType": "S3",
+      "title": "Move cold-reports to Deep Archive",
+      "reason": "Bucket has not been accessed for 550 days (18 months). Data is extremely cold and suitable for Deep Archive storage.",
+      "risk": "LOW",
+      "confidence": 0.99,
+      "monthlySavings": 224.0,
+      "annualSavings": 2688.0,
+      "implementationSteps": [
+        "Review data retention and compliance requirements.",
+        "Create S3 Lifecycle policy for Deep Archive transition.",
+        "Validate retrieval time expectations (12+ hours).",
+        "Apply lifecycle rule to bucket.",
+        "Monitor transition progress in S3 console."
+      ],
+      "executiveExplanation": "Data in cold-reports (4.2 TB) has been inactive for 550 days and should be transitioned to Deep Archive storage, achieving 70–90% cost reduction ($2,688.00/year). This also reduces estimated carbon footprint by 151.2 kg CO₂/year.",
+      "category": "STRATEGIC",
+      "ruleId": "S3-003"
+    },
+    {
+      "id": "RDS-RS-001",
+      "resourceId": "prod-db",
+      "resourceType": "RDS",
+      "title": "Rightsize prod-db (db.r5.xlarge → db.r5.large)",
+      "reason": "Database CPU at 18.0% and memory at 32.0% with 120 average connections indicates underutilization.",
+      "risk": "MEDIUM",
+      "confidence": 0.8,
+      "monthlySavings": 175.2,
+      "annualSavings": 2102.4,
+      "implementationSteps": [
+        "Schedule maintenance window during low-traffic period.",
+        "Modify instance class from db.r5.xlarge to db.r5.large.",
+        "Monitor database performance metrics for 72 hours.",
+        "Verify query performance and connection stability.",
+        "Roll back if latency exceeds acceptable thresholds."
+      ],
+      "executiveExplanation": "The postgres database prod-db appears significantly underutilized (CPU: 18%, Memory: 32%) and may safely operate on a smaller instance configuration (db.r5.large), reducing annual database costs by $2,102.40.",
+      "category": "HIGH_IMPACT",
+      "ruleId": "RDS-001"
+    },
+    {
+      "id": "S3-GL-005",
+      "resourceId": "compliance-docs",
+      "resourceType": "S3",
+      "title": "Migrate compliance-docs to Glacier",
+      "reason": "Bucket has not been accessed for 200 days and is currently in STANDARD storage class. Data qualifies for Glacier archival storage.",
+      "risk": "LOW",
+      "confidence": 0.97,
+      "monthlySavings": 115.67,
+      "annualSavings": 1388.04,
+      "implementationSteps": [
+        "Create S3 Lifecycle policy for Glacier transition.",
+        "Validate compliance requirements.",
+        "Transition archived data."
+      ],
+      "executiveExplanation": "Data stored in compliance-docs (2.1 TB) has remained inactive for more than ninety days and should be transitioned to lower-cost Glacier archival storage, saving $1,388.04/year. Estimated carbon reduction: 50.4 kg CO₂/year.",
+      "category": "STRATEGIC",
+      "ruleId": "S3-002"
+    },
+    {
+      "id": "S3-IT-004",
+      "resourceId": "ml-training",
+      "resourceType": "S3",
+      "title": "Enable Intelligent Tiering for ml-training",
+      "reason": "Bucket access pattern shows 60 days since last access, indicating variable access frequency suitable for Intelligent Tiering auto-optimization.",
+      "risk": "LOW",
+      "confidence": 0.9,
+      "monthlySavings": 103.27,
+      "annualSavings": 1239.24,
+      "implementationSteps": [
+        "Enable S3 Intelligent Tiering on bucket.",
+        "Configure archive access tiers if needed.",
+        "Monitor cost savings via Cost Explorer."
+      ],
+      "executiveExplanation": "Enabling Intelligent Tiering on ml-training (8.5 TB) will automatically optimize storage costs based on access patterns, achieving 10–20% savings ($1,239.24/year). Estimated carbon reduction: 51.0 kg CO₂/year.",
+      "category": "QUICK_WIN",
+      "ruleId": "S3-001"
+    },
+    {
+      "id": "EC2-RS-003",
+      "resourceId": "i-002",
+      "resourceType": "EC2",
+      "title": "Rightsize prod-web (t3.xlarge → t3.large)",
+      "reason": "CPU utilization at 8.0% and memory at 22.0% over 744 hours indicates consistent underutilization.",
+      "risk": "LOW",
+      "confidence": 0.95,
+      "monthlySavings": 60.73,
+      "annualSavings": 728.76,
+      "implementationSteps": [
+        "Schedule maintenance window.",
+        "Resize instance from t3.xlarge to t3.large.",
+        "Monitor CloudWatch metrics for 48 hours.",
+        "Validate application performance."
+      ],
+      "executiveExplanation": "This instance consistently operates below recommended utilization thresholds (CPU: 8%, Memory: 22%) and may safely transition to a smaller instance class (t3.large), reducing annual cloud expenditure by $728.76 without affecting application performance.",
+      "category": "QUICK_WIN",
+      "ruleId": "EC2-001"
+    },
+    {
+      "id": "EC2-RI-007",
+      "resourceId": "i-012",
+      "resourceType": "EC2",
+      "title": "Purchase Savings Plan for prod-etl",
+      "reason": "Instance runs 710 hours/month, indicating a stable workload suitable for Reserved Instance or Savings Plan pricing.",
+      "risk": "LOW",
+      "confidence": 0.98,
+      "monthlySavings": 51.0,
+      "annualSavings": 612.0,
+      "implementationSteps": [
+        "Review workload stability over past 6 months.",
+        "Select 1-year or 3-year commitment term.",
+        "Purchase Compute Savings Plan via AWS Console.",
+        "Monitor coverage in Cost Explorer."
+      ],
+      "executiveExplanation": "This workload runs consistently (710 hours/month) and qualifies for Reserved Instance or Savings Plan pricing. Committing to a 1-year plan could reduce annual spend by $612.00 (30% savings).",
+      "category": "STRATEGIC",
+      "ruleId": "EC2-002"
+    },
+    {
+      "id": "RDS-RS-002",
+      "resourceId": "staging-db",
+      "resourceType": "RDS",
+      "title": "Rightsize staging-db (db.t3.large → db.t3.medium)",
+      "reason": "Database CPU at 8.0% and memory at 20.0% with 30 average connections indicates underutilization.",
+      "risk": "MEDIUM",
+      "confidence": 0.8,
+      "monthlySavings": 49.64,
+      "annualSavings": 595.68,
+      "implementationSteps": [
+        "Schedule maintenance window during low-traffic period.",
+        "Modify instance class from db.t3.large to db.t3.medium.",
+        "Monitor database performance metrics for 72 hours.",
+        "Verify query performance and connection stability.",
+        "Roll back if latency exceeds acceptable thresholds."
+      ],
+      "executiveExplanation": "The postgres database staging-db appears significantly underutilized (CPU: 8%, Memory: 20%) and may safely operate on a smaller instance configuration (db.t3.medium), reducing annual database costs by $595.68.",
+      "category": "QUICK_WIN",
+      "ruleId": "RDS-001"
+    },
+    {
+      "id": "RDS-RS-004",
+      "resourceId": "logs-db",
+      "resourceType": "RDS",
+      "title": "Rightsize logs-db (db.t3.large → db.t3.medium)",
+      "reason": "Database CPU at 10.0% and memory at 25.0% with 45 average connections indicates underutilization.",
+      "risk": "MEDIUM",
+      "confidence": 0.8,
+      "monthlySavings": 49.64,
+      "annualSavings": 595.68,
+      "implementationSteps": [
+        "Schedule maintenance window during low-traffic period.",
+        "Modify instance class from db.t3.large to db.t3.medium.",
+        "Monitor database performance metrics for 72 hours.",
+        "Verify query performance and connection stability.",
+        "Roll back if latency exceeds acceptable thresholds."
+      ],
+      "executiveExplanation": "The mysql database logs-db appears significantly underutilized (CPU: 10%, Memory: 25%) and may safely operate on a smaller instance configuration (db.t3.medium), reducing annual database costs by $595.68.",
+      "category": "QUICK_WIN",
+      "ruleId": "RDS-001"
+    },
+    {
+      "id": "S3-IT-002",
+      "resourceId": "app-logs",
+      "resourceType": "S3",
+      "title": "Enable Intelligent Tiering for app-logs",
+      "reason": "Bucket access pattern shows 45 days since last access, indicating variable access frequency suitable for Intelligent Tiering auto-optimization.",
+      "risk": "LOW",
+      "confidence": 0.9,
+      "monthlySavings": 46.2,
+      "annualSavings": 554.4,
+      "implementationSteps": [
+        "Enable S3 Intelligent Tiering on bucket.",
+        "Configure archive access tiers if needed.",
+        "Monitor cost savings via Cost Explorer."
+      ],
+      "executiveExplanation": "Enabling Intelligent Tiering on app-logs (3.8 TB) will automatically optimize storage costs based on access patterns, achieving 10–20% savings ($554.40/year). Estimated carbon reduction: 22.8 kg CO₂/year.",
+      "category": "QUICK_WIN",
+      "ruleId": "S3-001"
+    },
+    {
+      "id": "EC2-RI-004",
+      "resourceId": "i-002",
+      "resourceType": "EC2",
+      "title": "Purchase Savings Plan for prod-web",
+      "reason": "Instance runs 744 hours/month, indicating a stable workload suitable for Reserved Instance or Savings Plan pricing.",
+      "risk": "LOW",
+      "confidence": 0.98,
+      "monthlySavings": 43.5,
+      "annualSavings": 522.0,
+      "implementationSteps": [
+        "Review workload stability over past 6 months.",
+        "Select 1-year or 3-year commitment term.",
+        "Purchase Compute Savings Plan via AWS Console.",
+        "Monitor coverage in Cost Explorer."
+      ],
+      "executiveExplanation": "This workload runs consistently (744 hours/month) and qualifies for Reserved Instance or Savings Plan pricing. Committing to a 1-year plan could reduce annual spend by $522.00 (30% savings).",
+      "category": "STRATEGIC",
+      "ruleId": "EC2-002"
+    },
+    {
+      "id": "EC2-RI-005",
+      "resourceId": "i-006",
+      "resourceType": "EC2",
+      "title": "Purchase Savings Plan for prod-cache",
+      "reason": "Instance runs 720 hours/month, indicating a stable workload suitable for Reserved Instance or Savings Plan pricing.",
+      "risk": "LOW",
+      "confidence": 0.98,
+      "monthlySavings": 37.8,
+      "annualSavings": 453.6,
+      "implementationSteps": [
+        "Review workload stability over past 6 months.",
+        "Select 1-year or 3-year commitment term.",
+        "Purchase Compute Savings Plan via AWS Console.",
+        "Monitor coverage in Cost Explorer."
+      ],
+      "executiveExplanation": "This workload runs consistently (720 hours/month) and qualifies for Reserved Instance or Savings Plan pricing. Committing to a 1-year plan could reduce annual spend by $453.60 (30% savings).",
+      "category": "STRATEGIC",
+      "ruleId": "EC2-002"
+    },
+    {
+      "id": "EC2-RS-001",
+      "resourceId": "i-001",
+      "resourceType": "EC2",
+      "title": "Rightsize prod-api (t3.large → t3.medium)",
+      "reason": "CPU utilization at 12.0% and memory at 28.0% over 720 hours indicates consistent underutilization.",
+      "risk": "LOW",
+      "confidence": 0.95,
+      "monthlySavings": 30.37,
+      "annualSavings": 364.44,
+      "implementationSteps": [
+        "Schedule maintenance window.",
+        "Resize instance from t3.large to t3.medium.",
+        "Monitor CloudWatch metrics for 48 hours.",
+        "Validate application performance."
+      ],
+      "executiveExplanation": "This instance consistently operates below recommended utilization thresholds (CPU: 12%, Memory: 28%) and may safely transition to a smaller instance class (t3.medium), reducing annual cloud expenditure by $364.44 without affecting application performance.",
+      "category": "QUICK_WIN",
+      "ruleId": "EC2-001"
+    },
+    {
+      "id": "EC2-RI-006",
+      "resourceId": "i-011",
+      "resourceType": "EC2",
+      "title": "Purchase Savings Plan for prod-queue",
+      "reason": "Instance runs 720 hours/month, indicating a stable workload suitable for Reserved Instance or Savings Plan pricing.",
+      "risk": "LOW",
+      "confidence": 0.98,
+      "monthlySavings": 28.8,
+      "annualSavings": 345.6,
+      "implementationSteps": [
+        "Review workload stability over past 6 months.",
+        "Select 1-year or 3-year commitment term.",
+        "Purchase Compute Savings Plan via AWS Console.",
+        "Monitor coverage in Cost Explorer."
+      ],
+      "executiveExplanation": "This workload runs consistently (720 hours/month) and qualifies for Reserved Instance or Savings Plan pricing. Committing to a 1-year plan could reduce annual spend by $345.60 (30% savings).",
+      "category": "STRATEGIC",
+      "ruleId": "EC2-002"
+    },
+    {
+      "id": "RDS-RS-003",
+      "resourceId": "dev-db",
+      "resourceType": "RDS",
+      "title": "Rightsize dev-db (db.t3.medium → db.t3.small)",
+      "reason": "Database CPU at 5.0% and memory at 15.0% with 10 average connections indicates underutilization.",
+      "risk": "MEDIUM",
+      "confidence": 0.8,
+      "monthlySavings": 24.82,
+      "annualSavings": 297.84,
+      "implementationSteps": [
+        "Schedule maintenance window during low-traffic period.",
+        "Modify instance class from db.t3.medium to db.t3.small.",
+        "Monitor database performance metrics for 72 hours.",
+        "Verify query performance and connection stability.",
+        "Roll back if latency exceeds acceptable thresholds."
+      ],
+      "executiveExplanation": "The mysql database dev-db appears significantly underutilized (CPU: 5%, Memory: 15%) and may safely operate on a smaller instance configuration (db.t3.small), reducing annual database costs by $297.84.",
+      "category": "QUICK_WIN",
+      "ruleId": "RDS-001"
+    },
+    {
+      "id": "EBS-OR-002",
+      "resourceId": "vol-003",
+      "resourceType": "EBS",
+      "title": "Delete orphaned volume vol-003",
+      "reason": "Volume is unattached and has not been accessed for 90 days. It is classified as orphaned per the 30-day inactivity threshold.",
+      "risk": "LOW",
+      "confidence": 0.98,
+      "monthlySavings": 24.0,
+      "annualSavings": 288.0,
+      "implementationSteps": [
+        "Confirm backup or snapshot availability.",
+        "Notify application owner.",
+        "Delete volume via AWS Console or CLI."
+      ],
+      "executiveExplanation": "This 200 GB volume has not been attached or accessed for 90 days and represents unnecessary operational spending of $288.00/year. Deleting it eliminates this cost entirely with no performance impact.",
+      "category": "QUICK_WIN",
+      "ruleId": "EBS-001"
+    },
+    {
+      "id": "EBS-OS-004",
+      "resourceId": "vol-006",
+      "resourceType": "EBS",
+      "title": "Reduce storage for vol-006 (250 GB → 66 GB)",
+      "reason": "Volume utilization is at 22.0% (55 GB used of 250 GB provisioned). Significant storage capacity is wasted.",
+      "risk": "MEDIUM",
+      "confidence": 0.75,
+      "monthlySavings": 22.08,
+      "annualSavings": 264.96,
+      "implementationSteps": [
+        "Create a snapshot of the current volume.",
+        "Create new 66 GB volume from snapshot.",
+        "Attach new volume and verify data integrity.",
+        "Delete the oversized original volume."
+      ],
+      "executiveExplanation": "This volume is using only 22% of its 250 GB allocation. Rightsizing to 66 GB would save $264.96/year while maintaining a 20% capacity buffer.",
+      "category": "QUICK_WIN",
+      "ruleId": "EBS-002"
+    },
+    {
+      "id": "EC2-RI-002",
+      "resourceId": "i-001",
+      "resourceType": "EC2",
+      "title": "Purchase Savings Plan for prod-api",
+      "reason": "Instance runs 720 hours/month, indicating a stable workload suitable for Reserved Instance or Savings Plan pricing.",
+      "risk": "LOW",
+      "confidence": 0.98,
+      "monthlySavings": 21.75,
+      "annualSavings": 261.0,
+      "implementationSteps": [
+        "Review workload stability over past 6 months.",
+        "Select 1-year or 3-year commitment term.",
+        "Purchase Compute Savings Plan via AWS Console.",
+        "Monitor coverage in Cost Explorer."
+      ],
+      "executiveExplanation": "This workload runs consistently (720 hours/month) and qualifies for Reserved Instance or Savings Plan pricing. Committing to a 1-year plan could reduce annual spend by $261.00 (30% savings).",
+      "category": "STRATEGIC",
+      "ruleId": "EC2-002"
+    },
+    {
+      "id": "EBS-OS-006",
+      "resourceId": "vol-009",
+      "resourceType": "EBS",
+      "title": "Reduce storage for vol-009 (200 GB → 36 GB)",
+      "reason": "Volume utilization is at 15.0% (30 GB used of 200 GB provisioned). Significant storage capacity is wasted.",
+      "risk": "MEDIUM",
+      "confidence": 0.75,
+      "monthlySavings": 19.68,
+      "annualSavings": 236.16,
+      "implementationSteps": [
+        "Create a snapshot of the current volume.",
+        "Create new 36 GB volume from snapshot.",
+        "Attach new volume and verify data integrity.",
+        "Delete the oversized original volume."
+      ],
+      "executiveExplanation": "This volume is using only 15% of its 200 GB allocation. Rightsizing to 36 GB would save $236.16/year while maintaining a 20% capacity buffer.",
+      "category": "QUICK_WIN",
+      "ruleId": "EBS-002"
+    },
+    {
+      "id": "EC2-RS-008",
+      "resourceId": "i-014",
+      "resourceType": "EC2",
+      "title": "Rightsize prod-monitor (t3.medium → t3.small)",
+      "reason": "CPU utilization at 11.0% and memory at 26.0% over 744 hours indicates consistent underutilization.",
+      "risk": "LOW",
+      "confidence": 0.95,
+      "monthlySavings": 15.19,
+      "annualSavings": 182.28,
+      "implementationSteps": [
+        "Schedule maintenance window.",
+        "Resize instance from t3.medium to t3.small.",
+        "Monitor CloudWatch metrics for 48 hours.",
+        "Validate application performance."
+      ],
+      "executiveExplanation": "This instance consistently operates below recommended utilization thresholds (CPU: 11%, Memory: 26%) and may safely transition to a smaller instance class (t3.small), reducing annual cloud expenditure by $182.28 without affecting application performance.",
+      "category": "QUICK_WIN",
+      "ruleId": "EC2-001"
+    },
+    {
+      "id": "EBS-OR-001",
+      "resourceId": "vol-001",
+      "resourceType": "EBS",
+      "title": "Delete orphaned volume vol-001",
+      "reason": "Volume is unattached and has not been accessed for 45 days. It is classified as orphaned per the 30-day inactivity threshold.",
+      "risk": "LOW",
+      "confidence": 0.98,
+      "monthlySavings": 12.0,
+      "annualSavings": 144.0,
+      "implementationSteps": [
+        "Confirm backup or snapshot availability.",
+        "Notify application owner.",
+        "Delete volume via AWS Console or CLI."
+      ],
+      "executiveExplanation": "This 100 GB volume has not been attached or accessed for 45 days and represents unnecessary operational spending of $144.00/year. Deleting it eliminates this cost entirely with no performance impact.",
+      "category": "QUICK_WIN",
+      "ruleId": "EBS-001"
+    },
+    {
+      "id": "EBS-OR-005",
+      "resourceId": "vol-008",
+      "resourceType": "EBS",
+      "title": "Delete orphaned volume vol-008",
+      "reason": "Volume is unattached and has not been accessed for 60 days. It is classified as orphaned per the 30-day inactivity threshold.",
+      "risk": "LOW",
+      "confidence": 0.98,
+      "monthlySavings": 12.0,
+      "annualSavings": 144.0,
+      "implementationSteps": [
+        "Confirm backup or snapshot availability.",
+        "Notify application owner.",
+        "Delete volume via AWS Console or CLI."
+      ],
+      "executiveExplanation": "This 100 GB volume has not been attached or accessed for 60 days and represents unnecessary operational spending of $144.00/year. Deleting it eliminates this cost entirely with no performance impact.",
+      "category": "QUICK_WIN",
+      "ruleId": "EBS-001"
+    },
+    {
+      "id": "EC2-RI-009",
+      "resourceId": "i-014",
+      "resourceType": "EC2",
+      "title": "Purchase Savings Plan for prod-monitor",
+      "reason": "Instance runs 744 hours/month, indicating a stable workload suitable for Reserved Instance or Savings Plan pricing.",
+      "risk": "LOW",
+      "confidence": 0.98,
+      "monthlySavings": 10.88,
+      "annualSavings": 130.56,
+      "implementationSteps": [
+        "Review workload stability over past 6 months.",
+        "Select 1-year or 3-year commitment term.",
+        "Purchase Compute Savings Plan via AWS Console.",
+        "Monitor coverage in Cost Explorer."
+      ],
+      "executiveExplanation": "This workload runs consistently (744 hours/month) and qualifies for Reserved Instance or Savings Plan pricing. Committing to a 1-year plan could reduce annual spend by $130.56 (30% savings).",
+      "category": "STRATEGIC",
+      "ruleId": "EC2-002"
+    },
+    {
+      "id": "EBS-OR-003",
+      "resourceId": "vol-005",
+      "resourceType": "EBS",
+      "title": "Delete orphaned volume vol-005",
+      "reason": "Volume is unattached and has not been accessed for 120 days. It is classified as orphaned per the 30-day inactivity threshold.",
+      "risk": "LOW",
+      "confidence": 0.98,
+      "monthlySavings": 6.0,
+      "annualSavings": 72.0,
+      "implementationSteps": [
+        "Confirm backup or snapshot availability.",
+        "Notify application owner.",
+        "Delete volume via AWS Console or CLI."
+      ],
+      "executiveExplanation": "This 50 GB volume has not been attached or accessed for 120 days and represents unnecessary operational spending of $72.00/year. Deleting it eliminates this cost entirely with no performance impact.",
+      "category": "QUICK_WIN",
+      "ruleId": "EBS-001"
+    }
+  ],
+  "savings": {
+    "totalMonthlySavings": 3073.62,
+    "totalAnnualSavings": 36883.44,
+    "roiPercentage": 283.72,
+    "savingsPercentage": 26.99,
+    "totalCurrentMonthlyCost": 11387.2,
+    "recommendationsCount": 26,
+    "byCategory": {
+      "STRATEGIC": 11,
+      "HIGH_IMPACT": 1,
+      "QUICK_WIN": 14
+    },
+    "byRisk": {
+      "LOW": 20,
+      "MEDIUM": 6
+    },
+    "byService": {
+      "S3": 7,
+      "RDS": 4,
+      "EC2": 9,
+      "EBS": 6
+    }
+  },
+  "score": {
+    "score": 35,
+    "category": "Critical",
+    "breakdown": {
+      "compute": 90,
+      "storage": 65,
+      "reservedCapacity": 80
+    },
+    "penalties": [
+      {
+        "condition": "Idle EC2 Instances",
+        "points": -10,
+        "details": "2 instance(s) with CPU < 5% and memory < 10%"
+      },
+      {
+        "condition": "Orphaned EBS Volumes",
+        "points": -10,
+        "details": "4 unattached volume(s) inactive > 30 days"
+      },
+      {
+        "condition": "Missing Lifecycle Policies",
+        "points": -15,
+        "details": "4 bucket(s) with cold data in STANDARD class"
+      },
+      {
+        "condition": "No Savings Plans",
+        "points": -20,
+        "details": "9 instance(s) running 700+ hrs without commitments"
+      },
+      {
+        "condition": "Cold Data in Standard Storage",
+        "points": -15,
+        "details": "2 bucket(s) with warming data still in STANDARD"
+      }
+    ],
+    "rewards": [
+      {
+        "condition": "Intelligent Tiering Enabled",
+        "points": 5,
+        "details": "1 bucket(s) using Intelligent Tiering"
+      }
+    ],
+    "recommendations": [
+      "Terminate or rightsize 2 idle EC2 instance(s) to improve efficiency.",
+      "Delete 4 orphaned EBS volume(s) to reduce storage waste.",
+      "Add lifecycle policies to 4 S3 bucket(s) with inactive data.",
+      "Purchase Savings Plans for 9 long-running instance(s).",
+      "Enable Intelligent Tiering on 2 bucket(s) with cooling access patterns."
+    ]
+  },
+  "forecast": {
+    "model": "Prophet",
+    "nextMonth": 22016.09,
+    "threeMonthForecast": [
+      22016.09,
+      21424.58,
+      20400.75
+    ],
+    "growthRate": 7.4,
+    "confidenceInterval": {
+      "lower": 22011.71,
+      "upper": 22020.93
+    },
+    "seasonalityDetected": true,
+    "executiveSummary": "Cloud spending is projected to reach $22,016 next month, reflecting moderate growth of 7.4%. The three-month forecast averages $21,280/month (range: $22,012–$22,021). Seasonal patterns have been detected in historical spending, suggesting cyclical cost variations that should be factored into budgeting. The overall trend is upward, indicating growing infrastructure needs. Consider proactive optimization to manage cost trajectory.",
+    "trendDirection": "increasing",
+    "historicalDataPoints": 18
+  }
+}
