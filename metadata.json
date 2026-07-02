@@ -1,0 +1,6 @@
+{
+  "name": "CloudSage AI",
+  "description": "Enterprise FinOps and Cloud Carbon Intelligence platform for predictive modeling, anomaly detection, and automated resource optimization.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

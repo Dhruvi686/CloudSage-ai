@@ -1,0 +1,9 @@
+record_value,StorageBytes,UnaccessedObjectDays,UnblendedCost
+arn:aws:s3:::prod-app-logs-2023,1342686738841,120,28.50
+arn:aws:s3:::dev-assets-temp,16320875724,5,0.35
+arn:aws:s3:::user-uploads-live,6227702579200,0,133.40
+arn:aws:s3:::db-backups-q1,912680550400,210,19.38
+arn:aws:s3:::marketing-videos-raw,2255403061248,95,47.89
+arn:aws:s3:::internal-docs-archive,128849018880,45,2.73
+arn:aws:s3:::legacy-app-images,483183820800,185,10.26
+arn:aws:s3:::staging-db-dumps,344133402624,12,7.30

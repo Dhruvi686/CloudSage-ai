@@ -1,0 +1,16 @@
+bucket_name,size_gb,last_access_days,monthly_cost,storage_class,region,object_count
+prod-app-logs,4200.5,187,96.62,STANDARD,us-east-1,12450000
+prod-media-assets,850.3,12,19.56,STANDARD,us-east-1,340200
+dev-backups-2023,1250.0,312,28.75,STANDARD,us-west-2,890000
+staging-artifacts,320.8,95,7.38,STANDARD,us-east-1,125000
+prod-db-snapshots,680.0,42,15.64,STANDARD,us-east-1,1200
+audit-logs-archive,5400.2,421,124.21,STANDARD,us-east-1,45000000
+ml-training-data,2100.6,8,48.32,STANDARD,us-west-2,3400000
+frontend-assets-cdn,45.2,2,1.04,STANDARD,us-east-1,8900
+prod-compliance-docs,380.0,145,8.74,STANDARD,eu-west-1,150000
+test-environment-dumps,920.5,267,21.17,STANDARD,us-east-1,780000
+prod-clickstream-data,3200.0,91,73.60,STANDARD,us-east-1,98000000
+dev-test-artifacts,180.3,150,4.15,STANDARD,us-west-2,45000
+analytics-raw-data,2850.7,180,65.57,STANDARD,us-west-2,15600000
+legacy-migration-dump,760.0,365,17.48,STANDARD,us-east-1,2300000
+build-cache-storage,95.4,7,2.19,STANDARD,us-east-1,340000
