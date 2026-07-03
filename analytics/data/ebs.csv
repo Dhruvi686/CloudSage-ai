@@ -1,0 +1,11 @@
+volume_id,attached,instance_id,size_gb,utilization_percentage,last_access_days,monthly_cost
+vol-001,false,,100,5,45,12.00
+vol-002,true,i-001,500,72,1,60.00
+vol-003,false,,200,0,90,24.00
+vol-004,true,i-005,1000,85,1,120.00
+vol-005,false,,50,0,120,6.00
+vol-006,true,i-006,250,22,3,30.00
+vol-007,true,i-007,500,68,1,60.00
+vol-008,false,,100,0,60,12.00
+vol-009,true,i-011,200,15,2,24.00
+vol-010,true,i-012,300,45,1,36.00
