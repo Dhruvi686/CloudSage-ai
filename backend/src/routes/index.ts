@@ -18,6 +18,7 @@ import { resourceHandler } from '../controllers/resource.controller';
 import { forecastHandler } from '../controllers/forecast.controller';
 import { scoreHandler } from '../controllers/score.controller';
 import { reportHandler } from '../controllers/report.controller';
+import { chatHandler } from '../controllers/chat.controller';
 import { validateQuery } from '../middleware/validation.middleware';
 import {
   recommendationsQuerySchema,
@@ -70,6 +71,14 @@ router.get('/forecast', forecastHandler);
 
 // GET /api/v1/score — FinOps Cloud Efficiency Score
 router.get('/score', scoreHandler);
+
+import { refreshHandler } from '../controllers/refresh.controller';
+
+// POST /api/v1/refresh — Force refresh AWS metrics
+router.post('/refresh', refreshHandler);
+
+// POST /api/v1/chat — Ask about cloud analysis and recommendations
+router.post('/chat', chatHandler);
 
 // GET /api/v1/report — Download executive PDF report
 router.get('/report', reportHandler);

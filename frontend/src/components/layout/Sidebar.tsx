@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
@@ -8,6 +8,7 @@ import {
   FileText,
   Cloud,
   Upload,
+  MessageSquare,
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -17,10 +18,32 @@ const NAV_ITEMS = [
   { to: '/resources', label: 'Resources', icon: Server },
   { to: '/forecast', label: 'Forecast', icon: TrendingUp },
   { to: '/reports', label: 'Reports', icon: FileText },
+  { to: '/chat', label: 'Chat', icon: MessageSquare },
 ];
 
 export function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const isLive = location.pathname.startsWith('/aws');
+
+  const navItems = NAV_ITEMS.map((item) => ({
+    ...item,
+    to: isLive ? `/aws${item.to}` : item.to,
+  }));
+
+  const handleSwitchSource = (live: boolean) => {
+    const currentPath = location.pathname;
+    let targetPath = '';
+    
+    if (live) {
+      targetPath = currentPath.startsWith('/aws') ? currentPath : `/aws${currentPath}`;
+    } else {
+      targetPath = currentPath.startsWith('/aws') ? currentPath.replace('/aws', '') : currentPath;
+    }
+    
+    localStorage.setItem('cloudsight_live_mode', live ? 'true' : 'false');
+    navigate(targetPath || '/dashboard');
+  };
 
   return (
     <aside className="fixed inset-y-0 left-0 z-30 flex w-64 flex-col border-r border-zinc-800 bg-zinc-950">
@@ -37,7 +60,7 @@ export function Sidebar() {
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {NAV_ITEMS.map((item) => {
+        {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (
             <NavLink
@@ -64,8 +87,33 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Upload CTA */}
+      {/* Data Source Switcher */}
       <div className="border-t border-zinc-800 p-4">
+        <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider block mb-2">Data Source</span>
+        <div className="grid grid-cols-2 gap-1 bg-zinc-900 rounded-lg p-1 border border-zinc-850 mb-3">
+          <button
+            onClick={() => handleSwitchSource(false)}
+            className={cn(
+              'px-2 py-1.5 text-xs font-medium rounded transition-colors',
+              !isLive
+                ? 'bg-zinc-800 text-zinc-100'
+                : 'text-zinc-500 hover:text-zinc-300'
+            )}
+          >
+            CSV Upload
+          </button>
+          <button
+            onClick={() => handleSwitchSource(true)}
+            className={cn(
+              'px-2 py-1.5 text-xs font-medium rounded transition-colors',
+              isLive
+                ? 'bg-zinc-800 text-zinc-100'
+                : 'text-zinc-500 hover:text-zinc-300'
+            )}
+          >
+            Live AWS
+          </button>
+        </div>
         <NavLink
           to="/"
           className="flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-500"

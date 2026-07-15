@@ -1,15 +1,13 @@
 /**
  * CloudSight AI — Resource Explorer Service
  *
- * Reads raw CSV data and transforms into Resource objects
- * matching the Resource schema from API-Specification.yaml.
+ * Pulls resource inventory directly from the live AWS query data.
  * Supports pagination and filtering by resource type.
  */
 
 import fs from 'fs';
 import path from 'path';
 import { config } from '../config';
-import { getCachedResults } from './analytics.service';
 import type { Resource, ResourceCollection } from '../types';
 import { createLogger } from '../utils/logger';
 
@@ -40,7 +38,7 @@ function parseCSV(content: string): Record<string, string>[] {
 /**
  * Determine resource status based on utilization.
  */
-function getStatus(utilization: number): string {
+function getStatus(utilization: number): 'Idle' | 'Underutilized' | 'Moderate' | 'Active' {
   if (utilization < 10) return 'Idle';
   if (utilization < 30) return 'Underutilized';
   if (utilization < 70) return 'Moderate';

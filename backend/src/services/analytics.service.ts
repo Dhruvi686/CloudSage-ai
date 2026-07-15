@@ -2,53 +2,128 @@
  * CloudSight AI — Analytics Service
  *
  * Core integration layer between the Express backend and the
- * Python analytics engines. Responsibilities:
- *
- * - Copy uploaded CSVs to analytics/data/
- * - Spawn `python -m analytics.main` via child_process
- * - Read and parse analytics/data/results.json
- * - Cache results in memory for subsequent GET endpoints
- * - Handle analytics failures with structured errors
- *
- * The Python analytics pipeline is the single source of truth
- * for all business logic. This service NEVER performs calculations.
+ * Python analytics engines. In live mode, it executes the Python
+ * AWS live query pipeline synchronously and caches the result.
  */
 
-import { execFile } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { promisify } from 'util';
 
 import { config } from '../config';
 import type { AnalyticsResults } from '../types';
-import { AnalyticsError, NoDataError } from '../utils/errors';
+import { AppError, AnalyticsError } from '../utils/errors';
 import { createLogger } from '../utils/logger';
 
-const execFileAsync = promisify(execFile);
 const logger = createLogger('analytics-service');
 
-/**
- * In-memory cache for analytics results.
- * Populated after a successful upload + analytics run.
- * All GET endpoints read from this cache.
- */
-let cachedResults: AnalyticsResults | null = null;
+/** In-memory cache for live AWS data */
+let cachedAWSData: { results: AnalyticsResults; resources: any[] } | null = null;
+let lastFetchTime = 0;
+const CACHE_TTL_MS = 60 * 1000; // Cache for 60 seconds
 
 /** Path to the analytics data directory */
 const analyticsDataDir = path.join(config.analyticsPath, 'data');
-
-/** Path to results.json */
 const resultsPath = path.join(analyticsDataDir, 'results.json');
 
 /**
- * Copy uploaded CSV files to the analytics data directory.
- *
- * @param files - Map of field name to Multer file objects.
+ * Execute the AWS Python script command synchronously and parse the JSON.
+ */
+export function getLiveAWSData(): { results: AnalyticsResults; resources: any[] } {
+  const now = Date.now();
+  if (cachedAWSData && (now - lastFetchTime) < CACHE_TTL_MS) {
+    return cachedAWSData;
+  }
+
+  logger.info('Executing live AWS query via Python CLI...');
+  const pythonPath = 'python';
+  const analyticsRoot = path.resolve(config.analyticsPath, '..');
+
+  try {
+    const stdout = execFileSync(
+      pythonPath,
+      ['-m', 'analytics.aws_service', 'all'],
+      {
+        cwd: analyticsRoot,
+        timeout: 30000, // 30s timeout
+        maxBuffer: 10 * 1024 * 1024,
+        encoding: 'utf-8'
+      }
+    );
+
+    const parsed = JSON.parse(stdout.trim());
+
+    if (parsed.error === 'credentials_missing') {
+      throw new AppError('AWS credentials not configured.', 400, 'AWS_CREDENTIALS_MISSING');
+    }
+
+    if (parsed.error === 'credentials_invalid') {
+      throw new AppError('AWS credentials configured but invalid.', 401, 'AWS_CREDENTIALS_INVALID');
+    }
+
+    if (parsed.error === 'execution_failed') {
+      throw new AppError(`AWS query failed: ${parsed.message}`, 502, 'ANALYTICS_ERROR');
+    }
+
+    cachedAWSData = {
+      results: parsed.results,
+      resources: parsed.resources
+    };
+    lastFetchTime = now;
+
+    return cachedAWSData;
+  } catch (err: any) {
+    if (err instanceof AppError) {
+      throw err;
+    }
+
+    if (err.stdout) {
+      try {
+        const parsed = JSON.parse(err.stdout.toString().trim());
+        if (parsed.error === 'credentials_missing') {
+          throw new AppError('AWS credentials not configured.', 400, 'AWS_CREDENTIALS_MISSING');
+        }
+        if (parsed.error === 'credentials_invalid') {
+          throw new AppError('AWS credentials configured but invalid.', 401, 'AWS_CREDENTIALS_INVALID');
+        }
+        if (parsed.error === 'execution_failed') {
+          throw new AppError(`AWS query failed: ${parsed.message}`, 502, 'ANALYTICS_ERROR');
+        }
+      } catch (e) {
+        // Fall through
+      }
+    }
+
+    logger.error(`Live AWS query subprocess failed: ${err.message}`);
+    throw new AppError(`AWS API query failed: ${err.message}`, 502, 'ANALYTICS_ERROR');
+  }
+}
+
+/**
+ * Invalidate in-memory cache to force a fresh pull.
+ */
+export function invalidateCache(): void {
+  cachedAWSData = null;
+  lastFetchTime = 0;
+  logger.info('AWS cache invalidated.');
+}
+
+/**
+ * Get cached analytics results.
+ * This is the central source of truth for the entire application.
+ */
+export function getCachedResults(): AnalyticsResults {
+  // Pull dynamically from live AWS
+  const data = getLiveAWSData();
+  return data.results;
+}
+
+/**
+ * Copy uploaded CSV files (deprecated in live mode).
  */
 export async function copyUploadsToAnalytics(
   files: Record<string, Express.Multer.File[]>
 ): Promise<void> {
-  // Ensure analytics data directory exists
   if (!fs.existsSync(analyticsDataDir)) {
     fs.mkdirSync(analyticsDataDir, { recursive: true });
   }
@@ -66,132 +141,58 @@ export async function copyUploadsToAnalytics(
     if (fileArray && fileArray.length > 0) {
       const source = fileArray[0].path;
       const dest = path.join(analyticsDataDir, targetName);
-
       fs.copyFileSync(source, dest);
-      logger.info(`Copied ${fieldName} -> ${targetName}`, { source, dest });
     }
   }
 }
 
 /**
- * Execute the Python analytics pipeline.
- *
- * Spawns `python -m analytics.main` and waits for completion.
- * Timeout is configurable via ANALYTICS_TIMEOUT env var.
- *
- * @throws AnalyticsError if the pipeline fails or times out.
+ * Load local results.json directly.
+ */
+export function getLocalResults(): AnalyticsResults {
+  try {
+    if (!fs.existsSync(resultsPath)) {
+      throw new AppError('No analytics results found. Please upload dataset CSVs first.', 404, 'RESULTS_NOT_FOUND');
+    }
+    const raw = fs.readFileSync(resultsPath, 'utf-8');
+    return JSON.parse(raw);
+  } catch (err: any) {
+    if (err instanceof AppError) throw err;
+    throw new AppError(`Failed to load local results: ${err.message}`, 500, 'LOAD_RESULTS_FAILED');
+  }
+}
+
+/**
+ * Execute the legacy Python pipeline (deprecated in live mode).
  */
 export async function runAnalyticsPipeline(): Promise<void> {
-  logger.info('Starting analytics pipeline...');
-  const startTime = Date.now();
+  logger.info('Executing local Python pipeline...');
+  const pythonPath = 'python';
+  const analyticsRoot = path.resolve(config.analyticsPath, '..');
 
   try {
-    const { stdout, stderr } = await execFileAsync(
-      'python',
+    execFileSync(
+      pythonPath,
       ['-m', 'analytics.main'],
       {
-        cwd: path.resolve(config.analyticsPath, '..'),
+        cwd: analyticsRoot,
         timeout: config.analyticsTimeout,
-        maxBuffer: 10 * 1024 * 1024, // 10MB buffer
+        maxBuffer: 10 * 1024 * 1024,
+        encoding: 'utf-8'
       }
     );
-
-    const duration = Date.now() - startTime;
-    logger.info(`Analytics pipeline completed in ${duration}ms`);
-
-    if (stdout) {
-      // Log last few lines of stdout for summary
-      const lines = stdout.trim().split('\n');
-      const summary = lines.slice(-5).join('\n');
-      logger.debug('Pipeline output (tail):\n' + summary);
-    }
-
-    if (stderr) {
-      logger.warn('Pipeline stderr output', { stderr: stderr.substring(0, 500) });
-    }
+    logger.info('Local Python pipeline execution complete.');
   } catch (err: any) {
-    const duration = Date.now() - startTime;
-    logger.error(`Analytics pipeline failed after ${duration}ms`, {
-      error: err.message,
-      exitCode: err.code,
-    });
-
-    if (err.killed) {
-      throw new AnalyticsError(
-        `Analytics pipeline timed out after ${config.analyticsTimeout / 1000}s`,
-        { timeout: config.analyticsTimeout }
-      );
-    }
-
-    throw new AnalyticsError(
-      `Analytics pipeline failed: ${err.message}`,
-      { stderr: err.stderr?.substring(0, 1000), exitCode: err.code }
-    );
+    logger.error(`Local Python pipeline subprocess failed: ${err.message}`);
+    throw new AppError(`Local Python pipeline failed: ${err.message}`, 502, 'ANALYTICS_ERROR');
   }
 }
 
 /**
- * Load and cache analytics results from results.json.
- *
- * @returns Parsed AnalyticsResults.
- * @throws AnalyticsError if results.json is missing or invalid.
+ * Load results (deprecated in live mode).
  */
 export async function loadResults(): Promise<AnalyticsResults> {
-  if (!fs.existsSync(resultsPath)) {
-    throw new AnalyticsError(
-      'Analytics results not found. Pipeline may have failed.',
-      { path: resultsPath }
-    );
-  }
-
-  try {
-    const raw = fs.readFileSync(resultsPath, 'utf-8');
-    const data = JSON.parse(raw) as AnalyticsResults;
-
-    // Cache the results
-    cachedResults = data;
-
-    logger.info('Analytics results loaded', {
-      recommendations: data.recommendations.length,
-      score: data.score.score,
-    });
-
-    return data;
-  } catch (err: any) {
-    throw new AnalyticsError(
-      `Failed to parse results.json: ${err.message}`,
-      { path: resultsPath }
-    );
-  }
-}
-
-/**
- * Get cached analytics results.
- *
- * If no cached results exist, attempts to load from disk.
- * If no results file exists, throws NoDataError.
- *
- * @returns Cached AnalyticsResults.
- * @throws NoDataError if no analytics have been run.
- */
-export function getCachedResults(): AnalyticsResults {
-  if (cachedResults) {
-    return cachedResults;
-  }
-
-  // Try loading from disk (may exist from a previous run)
-  if (fs.existsSync(resultsPath)) {
-    try {
-      const raw = fs.readFileSync(resultsPath, 'utf-8');
-      cachedResults = JSON.parse(raw) as AnalyticsResults;
-      logger.info('Loaded cached results from disk');
-      return cachedResults;
-    } catch {
-      // Fall through to NoDataError
-    }
-  }
-
-  throw new NoDataError();
+  return getLocalResults();
 }
 
 /**
@@ -205,7 +206,7 @@ export function cleanupUploads(files: Record<string, Express.Multer.File[]>): vo
           fs.unlinkSync(file.path);
         }
       } catch {
-        // Best-effort cleanup
+        // Ignore
       }
     }
   }

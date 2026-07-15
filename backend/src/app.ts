@@ -15,6 +15,7 @@ import { config } from './config';
 import { loggingMiddleware } from './middleware/logging.middleware';
 import { errorMiddleware } from './middleware/error.middleware';
 import apiRoutes from './routes';
+import awsRouter from './routes/aws.routes';
 import { createLogger } from './utils/logger';
 
 const logger = createLogger('app');
@@ -35,10 +36,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ---------------------------------------------------------------------------
-// API Routes — /api/v1
+// API Routes — /api/v1 & /api/aws
 // ---------------------------------------------------------------------------
 
 app.use('/api/v1', apiRoutes);
+app.use('/api/aws', awsRouter);
+app.use('/api/v1/aws', awsRouter);
 
 // ---------------------------------------------------------------------------
 // Swagger UI — /api-docs

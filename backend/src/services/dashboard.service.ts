@@ -5,7 +5,7 @@
  * Response matches DashboardResponse from API-Specification.yaml.
  */
 
-import { getCachedResults } from './analytics.service';
+import { getLocalResults } from './analytics.service';
 import type { DashboardResponse } from '../types';
 
 /**
@@ -13,6 +13,6 @@ import type { DashboardResponse } from '../types';
  * Reads directly from the `dashboard` section of results.json.
  */
 export function getDashboard(): DashboardResponse {
-  const results = getCachedResults();
+  const results = getLocalResults();
   return results.dashboard;
 }

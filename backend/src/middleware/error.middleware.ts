@@ -38,18 +38,33 @@ export function errorMiddleware(
   }
 
   // Handle custom AppError hierarchy
-  if (err instanceof AppError) {
+  const isAppError = err instanceof AppError || (err && typeof err === 'object' && 'statusCode' in err && 'code' in err);
+  if (isAppError) {
+    const status = (err as any).statusCode || 500;
+    const errCode = (err as any).code || 'INTERNAL_ERROR';
+    const details = (err as any).details;
+
+    if (status === 400 && (err.message === 'AWS credentials not configured.' || errCode === 'AWS_CREDENTIALS_MISSING')) {
+      res.status(400).json({ message: 'AWS credentials not configured.' });
+      return;
+    }
+    if (status === 401 || errCode === 'AWS_CREDENTIALS_INVALID') {
+      res.status(401).json({ message: err.message || 'AWS credentials configured but invalid.' });
+      return;
+    }
+
     const response: ErrorResponse = {
       error: {
-        code: err.code,
+        code: errCode,
         message: err.message,
-        details: err.details,
+        details: details,
       },
     };
-    logger.error(`${err.name}: ${err.message}`, { code: err.code, statusCode: err.statusCode });
-    res.status(err.statusCode).json(response);
+    logger.error(`${err.name || 'AppError'}: ${err.message}`, { code: errCode, statusCode: status });
+    res.status(status).json(response);
     return;
   }
+
 
   // Handle unexpected errors
   logger.error('Unhandled error', { error: err.message, stack: err.stack });

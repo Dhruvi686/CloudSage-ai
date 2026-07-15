@@ -5,7 +5,7 @@
  * NEVER performs calculations — all values come from Prophet via results.json.
  */
 
-import { getCachedResults } from './analytics.service';
+import { getLocalResults } from './analytics.service';
 import type { ForecastResponse } from '../types';
 import { AppError } from '../utils/errors';
 
@@ -14,7 +14,7 @@ import { AppError } from '../utils/errors';
  * Data originates exclusively from the Python Prophet engine.
  */
 export function getForecast(): ForecastResponse {
-  const results = getCachedResults();
+  const results = getLocalResults();
 
   if (!results.forecast) {
     throw new AppError('Forecast data not available. Prophet engine may have failed.', 503, 'FORECAST_UNAVAILABLE');
