@@ -28,6 +28,10 @@ export interface DashboardResponse {
   savingsPercentage: number;
   finOpsScore: number;
   forecastedSpend: number;
+  aws_account?: {
+    accountId: string;
+    accountName: string;
+  };
 }
 
 // ---------------------------------------------------------------------------

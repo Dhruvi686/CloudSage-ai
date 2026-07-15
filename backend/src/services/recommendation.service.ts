@@ -5,11 +5,11 @@
  * Supports filtering by category (EC2/S3/EBS/RDS), risk, and impact level.
  */
 
-import { getCachedResults } from './analytics.service';
+import { getLocalResults } from './analytics.service';
 import type { Recommendation } from '../types';
 
 interface RecommendationFilters {
-  category?: string;
+  category?: string;/*  */
   risk?: string;
   impact?: string;
 }
@@ -31,7 +31,7 @@ function getImpactLevel(annualSavings: number): string {
  * @returns Filtered array of Recommendation objects.
  */
 export function getRecommendations(filters: RecommendationFilters): Recommendation[] {
-  const results = getCachedResults();
+  const results = getLocalResults();
   let recs = results.recommendations;
 
   // Filter by resource type (category in API spec maps to resourceType)
